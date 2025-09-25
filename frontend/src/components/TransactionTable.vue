@@ -10,10 +10,10 @@
         {{ formatDate(item.occurred_at) }}
       </template>
       <template #item.amount="{ item }">
-        {{ formatMoney(item.amount) }}
+        {{ formatMoney(item.amount ?? 0) }}
       </template>
       <template #item.running_balance="{ item }">
-        {{ formatMoney(item.running_balance) }}
+        {{ formatMoney(item.running_balance ?? 0) }}
       </template>
       <template #item.actions="{ item }">
         <v-btn icon @click="edit(item)"><v-icon>mdi-pencil</v-icon></v-btn>
@@ -29,8 +29,21 @@ import { useTransactionsStore } from '../stores/useTransactionsStore'
 import { formatMoney } from '../utils/money'
 import TransactionForm from './TransactionForm.vue'
 
+// define a local transaction type to help TS in templates
+type Transaction = {
+  id?: number
+  type?: string
+  category?: string
+  occurred_at?: string
+  amount?: number
+  running_balance?: number
+  comment?: string
+  [key: string]: any
+}
+
 const tx = useTransactionsStore()
-const items = computed(() => tx.items)
+// ensure items has a known type for the template compiler
+const items = computed<Transaction[]>(() => (tx.items as unknown) as Transaction[])
 const loading = computed(() => tx.loading)
 const headers = computed(() => [
   { title: 'Тип', key: 'type' },
@@ -42,7 +55,7 @@ const headers = computed(() => [
   { title: 'Действия', key: 'actions', sortable: false }
 ])
 
-function formatDate(val: string) {
+function formatDate(val?: string) {
   if (!val) return ''
   const d = new Date(val)
   const dd = String(d.getDate()).padStart(2, '0')
@@ -51,9 +64,9 @@ function formatDate(val: string) {
   return `${dd}.${mm}.${yyyy}`
 }
 
-const editItem = ref<any | null>(null)
+const editItem = ref<Transaction | null>(null)
 
-function edit(item: any) {
+function edit(item: Transaction) {
   editItem.value = { ...item }
 }
 
@@ -65,9 +78,10 @@ function onCancelEdit() {
   editItem.value = null
 }
 
-async function remove(item: any) {
+async function remove(item: Transaction) {
   if (!confirm('Удалить транзакцию?')) return
   try {
+    if (!item.id) throw new Error('Нет id')
     await tx.deleteTransaction(item.id)
     await tx.fetchTransactions()
   } catch (err: any) {
