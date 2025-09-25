@@ -14,11 +14,11 @@ class UpdateTransactionRequest extends FormRequest
     public function rules()
     {
         return [
-            'occurred_at' => ['sometimes','date'],
-            'type' => ['sometimes','in:income,expense'],
-            'category' => ['sometimes','string'],
-            'amount' => ['sometimes','numeric','min:0.01'],
-            'comment' => ['nullable','string'],
+            'occurred_at' => ['sometimes', 'date'],
+            'type' => ['sometimes', 'in:income,expense'],
+            'category_id' => ['sometimes', 'exists:categories,id'],
+            'amount' => ['sometimes', 'numeric', 'min:0.01'],
+            'comment' => ['nullable', 'string'],
         ];
     }
 }

@@ -11,17 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('transactions', function (Blueprint $table) {
+        Schema::create('categories', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->timestamp('occurred_at')->useCurrent();
+            $table->string('name')->unique();
             $table->enum('type', ['income', 'expense']);
-            // store category as foreign key to categories table
-            $table->unsignedBigInteger('category_id');
-            $table->decimal('amount', 14, 2);
-            $table->text('comment')->nullable();
             $table->timestamps();
-
-            $table->foreign('category_id')->references('id')->on('categories')->cascadeOnDelete();
         });
     }
 
@@ -30,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('transactions');
+        Schema::dropIfExists('categories');
     }
 };

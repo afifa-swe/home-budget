@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Category;
 
 class Transaction extends Model
 {
@@ -12,7 +13,7 @@ class Transaction extends Model
     protected $fillable = [
         'occurred_at',
         'type',
-        'category',
+        'category_id',
         'amount',
         'comment',
     ];
@@ -21,4 +22,9 @@ class Transaction extends Model
         'occurred_at' => 'datetime',
         'amount' => 'decimal:2',
     ];
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
 }

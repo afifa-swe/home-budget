@@ -16,7 +16,7 @@ class StoreTransactionRequest extends FormRequest
         return [
             'occurred_at' => ['required','date'],
             'type' => ['required','in:income,expense'],
-            'category' => ['required','string'],
+            'category_id' => ['required','exists:categories,id'],
             'amount' => ['required','numeric','min:0.01'],
             'comment' => ['nullable','string'],
         ];

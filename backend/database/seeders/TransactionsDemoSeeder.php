@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Transaction;
+use App\Models\Category;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 
@@ -24,10 +25,18 @@ class TransactionsDemoSeeder extends Seeder
         ];
 
         foreach ($examples as $ex) {
+            // try to find the category by name; if missing, pick a random category of the same type
+            $cat = Category::where('name', $ex['category'])->first();
+            if (! $cat) {
+                $cat = Category::where('type', $ex['type'])->inRandomOrder()->first();
+            }
+
+            $categoryId = $cat ? $cat->id : null;
+
             Transaction::create([
                 'occurred_at' => $now->copy()->subDays($ex['daysAgo']),
                 'type' => $ex['type'],
-                'category' => $ex['category'],
+                'category_id' => $categoryId,
                 'amount' => $ex['amount'],
                 'comment' => $ex['comment'],
             ]);

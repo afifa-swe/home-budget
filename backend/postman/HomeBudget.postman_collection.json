@@ -7,198 +7,123 @@
   "variable": [
     {
       "key": "baseUrl",
-      "value": "http://localhost:8078"
+      "value": "http://localhost:8078/api"
     }
   ],
   "item": [
     {
-      "name": "List transactions (month=2025-09)",
-      "request": {
-        "method": "GET",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
+      "name": "Transactions",
+      "item": [
+        {
+          "name": "List transactions (month=2025-09)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/transactions?month=2025-09",
+              "host": ["{{baseUrl}}"],
+              "path": ["transactions"],
+              "query": [ { "key": "month", "value": "2025-09" } ]
+            }
           },
-          {
-            "key": "Accept",
-            "value": "application/json"
-          }
-        ],
-        "url": {
-          "raw": "{{baseUrl}}/api/transactions?month=2025-09",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "transactions"
-          ],
-          "query": [
+          "response": [
             {
-              "key": "month",
-              "value": "2025-09"
+              "name": "example",
+              "status": "OK",
+              "code": 200,
+              "body": "[ { \"id\": 1, \"occurred_at\": \"2025-09-22T00:00:00\", \"type\": \"income\", \"category_id\": 1, \"category\": \"Заработная плата\", \"amount\": 200000.00, \"running_balance\": \"200000.00\", \"comment\": \"Monthly salary\" } ]",
+              "header": [ { "key": "Content-Type", "value": "application/json" } ]
             }
           ]
-        }
-      }
-    },
-    {
-      "name": "Create transaction (POST)",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          },
-          {
-            "key": "Accept",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\"occurred_at\":\"2025-09-25T09:00:00\",\"type\":\"income\",\"category\":\"Заработная плата\",\"amount\":250000,\"comment\":\"Salary\"}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
         },
-        "url": {
-          "raw": "{{baseUrl}}/api/transactions",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "transactions"
-          ]
-        }
-      }
-    },
-    {
-      "name": "Update transaction (PUT id=1)",
-      "request": {
-        "method": "PUT",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          },
-          {
-            "key": "Accept",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\"amount\":260000,\"comment\":\"Updated salary amount\"}",
-          "options": {
-            "raw": {
-              "language": "json"
+        {
+          "name": "Create transaction (POST)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"occurred_at\": \"2025-09-25T09:00:00\",\n  \"type\": \"income\",\n  \"category_id\": 1,\n  \"amount\": 250000,\n  \"comment\": \"Salary\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/transactions",
+              "host": ["{{baseUrl}}"],
+              "path": ["transactions"]
             }
-          }
-        },
-        "url": {
-          "raw": "{{baseUrl}}/api/transactions/1",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "transactions",
-            "1"
-          ]
-        }
-      }
-    },
-    {
-      "name": "Delete transaction (DELETE id=1)",
-      "request": {
-        "method": "DELETE",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
           },
-          {
-            "key": "Accept",
-            "value": "application/json"
-          }
-        ],
-        "url": {
-          "raw": "{{baseUrl}}/api/transactions/1",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "transactions",
-            "1"
-          ]
-        }
-      }
-    },
-    {
-      "name": "Monthly stats (year=2025)",
-      "request": {
-        "method": "GET",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          },
-          {
-            "key": "Accept",
-            "value": "application/json"
-          }
-        ],
-        "url": {
-          "raw": "{{baseUrl}}/api/stats/monthly?year=2025",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "stats",
-            "monthly"
-          ],
-          "query": [
+          "response": [
             {
-              "key": "year",
-              "value": "2025"
+              "name": "created",
+              "status": "Created",
+              "code": 201,
+              "body": "{ \"id\": 10, \"occurred_at\": \"2025-09-25T09:00:00\", \"type\": \"income\", \"category_id\": 1, \"category\": \"Заработная плата\", \"amount\": 250000.00, \"comment\": \"Salary\" }",
+              "header": [ { "key": "Content-Type", "value": "application/json" } ]
             }
           ]
+        },
+        {
+          "name": "Update transaction (PUT id=1)",
+          "request": {
+            "method": "PUT",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{ \"amount\": 300000, \"comment\": \"Updated salary\" }", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{baseUrl}}/transactions/1", "host": ["{{baseUrl}}"], "path": ["transactions","1"] }
+          },
+          "response": [ { "name": "updated", "status": "OK", "code": 200, "body": "{ \"id\": 1, \"occurred_at\": \"2025-09-22T00:00:00\", \"type\": \"income\", \"category_id\": 1, \"category\": \"Заработная плата\", \"amount\": 300000.00, \"comment\": \"Updated salary\" }", "header": [ { "key": "Content-Type", "value": "application/json" } ] } ]
+        },
+        {
+          "name": "Delete transaction (DELETE id=1)",
+          "request": { "method": "DELETE", "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" } ], "url": { "raw": "{{baseUrl}}/transactions/1", "host": ["{{baseUrl}}"], "path": ["transactions","1"] } },
+          "response": [ { "name": "deleted", "status": "No Content", "code": 204, "body": "", "header": [ { "key": "Content-Type", "value": "application/json" } ] } ]
         }
-      }
+      ]
     },
     {
-      "name": "List categories",
-      "request": {
-        "method": "GET",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
+      "name": "Categories",
+      "item": [
+        {
+          "name": "List categories",
+          "request": { "method": "GET", "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" } ], "url": { "raw": "{{baseUrl}}/categories", "host": ["{{baseUrl}}"], "path": ["categories"] } },
+          "response": [ { "name": "ok", "status": "OK", "code": 200, "body": "{ \"income\": [ { \"id\": 1, \"name\": \"Заработная плата\" } ], \"expense\": [ { \"id\": 3, \"name\": \"Продукты питания\" } ] }", "header": [ { "key": "Content-Type", "value": "application/json" } ] } ]
+        },
+        {
+          "name": "Create category (POST)",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{ \"name\": \"Test category\", \"type\": \"expense\" }", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{baseUrl}}/categories", "host": ["{{baseUrl}}"], "path": ["categories"] }
           },
-          {
-            "key": "Accept",
-            "value": "application/json"
-          }
-        ],
-        "url": {
-          "raw": "{{baseUrl}}/api/categories",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "categories"
-          ]
+          "response": [ { "name": "created", "status": "Created", "code": 201, "body": "{ \"id\": 99, \"name\": \"Test category\", \"type\": \"expense\" }", "header": [ { "key": "Content-Type", "value": "application/json" } ] } ]
+        },
+        {
+          "name": "Update category (PUT id=1)",
+          "request": { "method": "PUT", "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{ \"name\": \"Updated category\" }", "options": { "raw": { "language": "json" } } }, "url": { "raw": "{{baseUrl}}/categories/1", "host": ["{{baseUrl}}"], "path": ["categories","1"] } },
+          "response": [ { "name": "updated", "status": "OK", "code": 200, "body": "{ \"id\": 1, \"name\": \"Updated category\", \"type\": \"expense\" }", "header": [ { "key": "Content-Type", "value": "application/json" } ] } ]
+        },
+        {
+          "name": "Delete category (DELETE id=1)",
+          "request": { "method": "DELETE", "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" } ], "url": { "raw": "{{baseUrl}}/categories/1", "host": ["{{baseUrl}}"], "path": ["categories","1"] } },
+          "response": [ { "name": "deleted", "status": "No Content", "code": 204, "body": "", "header": [ { "key": "Content-Type", "value": "application/json" } ] } ]
         }
-      }
+      ]
+    },
+    {
+      "name": "Stats",
+      "item": [
+        {
+          "name": "Monthly stats (year=2025)",
+          "request": { "method": "GET", "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" } ], "url": { "raw": "{{baseUrl}}/stats/monthly?year=2025", "host": ["{{baseUrl}}"], "path": ["stats","monthly"], "query": [ { "key": "year", "value": "2025" } ] } },
+          "response": [ { "name": "ok", "status": "OK", "code": 200, "body": "[ { \"month\": 9, \"total_income\": \"350000.00\", \"total_expense\": \"51200.50\", \"balance\": \"298799.50\" } ]", "header": [ { "key": "Content-Type", "value": "application/json" } ] } ]
+        }
+      ]
     }
   ]
 }

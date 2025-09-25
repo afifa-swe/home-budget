@@ -15,7 +15,7 @@ class TransactionController extends Controller
     {
         $month = $request->query('month');
 
-        $query = Transaction::query();
+        $query = Transaction::with('category');
 
         if ($month) {
             [$year, $mon] = explode('-', $month);
@@ -33,7 +33,13 @@ class TransactionController extends Controller
                 $running -= $t->amount;
             }
 
-            return array_merge($t->toArray(), ['running_balance' => number_format($running, 2, '.', '')]);
+            $arr = $t->toArray();
+            $arr['running_balance'] = number_format($running, 2, '.', '');
+            if (isset($t->category) && $t->category) {
+                $arr['category'] = $t->category->name;
+            }
+
+            return $arr;
         });
 
         return response()->json($result);
@@ -43,14 +49,20 @@ class TransactionController extends Controller
     {
         $data = $request->validated();
         $t = Transaction::create($data);
-        return response()->json($t, 201);
+        $t->load('category');
+        $arr = $t->toArray();
+        if ($t->category) $arr['category'] = $t->category->name;
+        return response()->json($arr, 201);
     }
 
     public function update(UpdateTransactionRequest $request, $id)
     {
         $t = Transaction::findOrFail($id);
         $t->update($request->validated());
-        return response()->json($t);
+        $t->load('category');
+        $arr = $t->toArray();
+        if ($t->category) $arr['category'] = $t->category->name;
+        return response()->json($arr);
     }
 
     public function destroy($id)
