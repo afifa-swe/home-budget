@@ -1,14 +1,12 @@
 <template>
   <v-container>
     <MonthPicker />
-    <TransactionForm />
     <TransactionTable />
   </v-container>
 </template>
 
 <script setup lang="ts">
 import MonthPicker from '../components/MonthPicker.vue'
-import TransactionForm from '../components/TransactionForm.vue'
 import TransactionTable from '../components/TransactionTable.vue'
 import { onMounted } from 'vue'
 import { useTransactionsStore } from '../stores/useTransactionsStore'
