@@ -13,8 +13,8 @@ export const useCategoriesStore = defineStore('categories', () => {
       if (Array.isArray(data)) {
         items.value = data
       } else if (data && (Array.isArray(data.income) || Array.isArray(data.expense))) {
-        const income = Array.isArray(data.income) ? data.income : []
-        const expense = Array.isArray(data.expense) ? data.expense : []
+        const income = Array.isArray(data.income) ? data.income.map((c: any) => ({ ...c, type: 'income' })) : []
+        const expense = Array.isArray(data.expense) ? data.expense.map((c: any) => ({ ...c, type: 'expense' })) : []
         items.value = [...income, ...expense]
       } else {
         // Fallback: empty

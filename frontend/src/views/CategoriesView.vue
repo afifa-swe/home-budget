@@ -19,6 +19,9 @@
     </v-row>
 
     <v-data-table :items="items" :headers="headers">
+      <template #item.type="{ item }">
+        {{ item.type }}
+      </template>
       <template #item.actions="{ item }">
         <v-btn icon @click="startEdit(item)"><v-icon>mdi-pencil</v-icon></v-btn>
         <v-btn icon color="red" @click="remove(item)"><v-icon>mdi-delete</v-icon></v-btn>
