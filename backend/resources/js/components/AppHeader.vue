@@ -188,6 +188,11 @@ const rightNavItems: NavItem[] = [
                 </div>
 
                 <div class="ml-auto flex items-center space-x-2">
+                    <!-- Nav toggle between Transactions and Categories -->
+                    <div v-if="auth && auth.user" class="hidden sm:flex items-center space-x-2 mr-2">
+                        <Link :href="toUrl('/transactions')" class="px-3 py-1 rounded text-sm" :class="activeItemStyles('/transactions')">Транзакции</Link>
+                        <Link :href="toUrl('/categories')" class="px-3 py-1 rounded text-sm" :class="activeItemStyles('/categories')">Категории</Link>
+                    </div>
                     <div class="relative flex items-center space-x-1">
                         <Button
                             variant="ghost"

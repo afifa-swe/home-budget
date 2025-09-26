@@ -3,8 +3,17 @@
     <v-app-bar app>
       <v-toolbar-title>HomeBudget</v-toolbar-title>
       <v-spacer />
-      <div v-if="auth.user">
+      <div v-if="auth.user" class="header-actions">
         {{ auth.user.email }}
+        <!-- Navigation buttons between Transactions and Categories -->
+        <router-link to="/transactions" custom v-slot="{ navigate, href, isActive }">
+          <v-btn :href="href" :class="[{ 'v-btn--active': isActive } ]" text @click="navigate">Транзакции</v-btn>
+        </router-link>
+
+        <router-link to="/categories" custom v-slot="{ navigate, href, isActive }">
+          <v-btn :href="href" :class="[{ 'v-btn--active': isActive } ]" text @click="navigate">Категории</v-btn>
+        </router-link>
+
         <v-btn text @click="onLogout">Выйти</v-btn>
       </div>
       <div v-else>

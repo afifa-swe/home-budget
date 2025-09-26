@@ -1,10 +1,13 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import axios from '../api'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<Record<string, any> | null>(null)
   const accessToken = ref<string | null>(localStorage.getItem('access_token') || null)
+  const isAuthenticated = computed(() => {
+    return !!accessToken.value
+  })
 
   async function login(email: string, password: string) {
     const res = await axios.post('/login', { email, password })
@@ -42,11 +45,14 @@ export const useAuthStore = defineStore('auth', () => {
     user.value = null
     accessToken.value = null
     localStorage.removeItem('access_token')
+    // redirect to login
+    window.location.href = '/login'
   }
 
   return {
     user,
-    accessToken,
+  accessToken,
+  isAuthenticated,
     login,
     register,
     fetchUser,
