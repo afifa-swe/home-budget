@@ -9,6 +9,7 @@
       </div>
       <div v-else>
         <v-btn text to="/login">Войти</v-btn>
+        <v-btn text to="/register">Регистрация</v-btn>
       </div>
     </v-app-bar>
 

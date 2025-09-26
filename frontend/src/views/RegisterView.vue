@@ -11,6 +11,7 @@
               <v-text-field v-model="password" label="Password" type="password" required></v-text-field>
               <v-text-field v-model="passwordConfirmation" label="Password Confirmation" type="password" required></v-text-field>
               <v-btn type="submit" color="primary">Register</v-btn>
+              <v-btn text color="primary" class="ml-2" :to="{ path: '/login' }">Уже есть аккаунт? Войти</v-btn>
             </v-form>
           </v-card-text>
         </v-card>

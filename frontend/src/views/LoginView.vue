@@ -9,6 +9,7 @@
               <v-text-field v-model="email" label="Email" required></v-text-field>
               <v-text-field v-model="password" label="Password" type="password" required></v-text-field>
               <v-btn type="submit" color="primary">Login</v-btn>
+              <v-btn text color="primary" class="ml-2" :to="{ path: '/register' }">Нет аккаунта? Зарегистрироваться</v-btn>
             </v-form>
           </v-card-text>
         </v-card>
