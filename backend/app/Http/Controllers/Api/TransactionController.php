@@ -14,8 +14,9 @@ class TransactionController extends Controller
     public function index(Request $request)
     {
         $month = $request->query('month');
+        $userId = $request->user()->id;
 
-        $query = Transaction::with('category');
+        $query = Transaction::with('category')->where('user_id', $userId);
 
         if ($month) {
             [$year, $mon] = explode('-', $month);
@@ -48,6 +49,7 @@ class TransactionController extends Controller
     public function store(StoreTransactionRequest $request)
     {
         $data = $request->validated();
+        $data['user_id'] = $request->user()->id;
         $t = Transaction::create($data);
         $t->load('category');
         $arr = $t->toArray();
@@ -57,7 +59,8 @@ class TransactionController extends Controller
 
     public function update(UpdateTransactionRequest $request, $id)
     {
-        $t = Transaction::findOrFail($id);
+        $userId = $request->user()->id;
+        $t = Transaction::where('id', $id)->where('user_id', $userId)->firstOrFail();
         $t->update($request->validated());
         $t->load('category');
         $arr = $t->toArray();
@@ -65,9 +68,10 @@ class TransactionController extends Controller
         return response()->json($arr);
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        $t = Transaction::findOrFail($id);
+        $userId = $request->user()->id;
+        $t = Transaction::where('id', $id)->where('user_id', $userId)->firstOrFail();
         $t->delete();
         return response()->json(null, 204);
     }

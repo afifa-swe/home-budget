@@ -16,7 +16,16 @@ class StoreTransactionRequest extends FormRequest
         return [
             'occurred_at' => ['required','date'],
             'type' => ['required','in:income,expense'],
-            'category_id' => ['required','exists:categories,id'],
+            'category_id' => [
+                'required',
+                function ($attribute, $value, $fail) {
+                    $userId = $this->user()->id;
+                    $exists = \App\Models\Category::where('id', $value)->where('user_id', $userId)->exists();
+                    if (!$exists) {
+                        $fail('Категория не найдена или не принадлежит пользователю.');
+                    }
+                }
+            ],
             'amount' => ['required','numeric','min:0.01'],
             'comment' => ['nullable','string'],
         ];

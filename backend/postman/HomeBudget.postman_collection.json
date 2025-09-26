@@ -31,7 +31,7 @@
           "request": {
             "method": "POST",
             "header": [ { "key": "Content-Type", "value": "application/json" } ],
-            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Test\", \"email\": \"test@test.com\", \"password\": \"secret\", \"password_confirmation\": \"secret\", \"client_id\": \"{{client_id}}\", \"client_secret\": \"{{client_secret}}\"\n}", "options": { "raw": { "language": "json" } } },
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Test\", \"email\": \"test@test.com\", \"password\": \"secret\", \"password_confirmation\": \"secret\"\n}", "options": { "raw": { "language": "json" } } },
             "url": { "raw": "{{baseUrl}}/register", "host": ["{{baseUrl}}"], "path": ["register"] }
           }
         },
@@ -40,7 +40,7 @@
           "request": {
             "method": "POST",
             "header": [ { "key": "Content-Type", "value": "application/json" } ],
-            "body": { "mode": "raw", "raw": "{\n  \"email\": \"test@test.com\", \"password\": \"secret\", \"client_id\": \"{{client_id}}\", \"client_secret\": \"{{client_secret}}\"\n}", "options": { "raw": { "language": "json" } } },
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"test@test.com\", \"password\": \"secret\"\n}", "options": { "raw": { "language": "json" } } },
             "url": { "raw": "{{baseUrl}}/login", "host": ["{{baseUrl}}"], "path": ["login"] }
           },
           "event": [

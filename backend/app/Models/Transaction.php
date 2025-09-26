@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Category;
 
+
 class Transaction extends Model
 {
     use HasFactory;
@@ -14,6 +15,7 @@ class Transaction extends Model
         'occurred_at',
         'type',
         'category_id',
+        'user_id',
         'amount',
         'comment',
     ];
@@ -26,5 +28,10 @@ class Transaction extends Model
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

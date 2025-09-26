@@ -20,15 +20,11 @@ Route::middleware('auth:api')->group(function () {
 	Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
 });
 
-Route::get('/stats/monthly', [StatsController::class, 'monthly']);
+Route::get('/stats/monthly', [StatsController::class, 'monthly'])->middleware('auth:api');
 
 // Public auth endpoints
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/user', [AuthController::class, 'user'])->middleware('auth:api');
 
-// Categories CRUD
-Route::get('/categories', [CategoryController::class, 'index']);
-Route::post('/categories', [CategoryController::class, 'store']);
-Route::put('/categories/{id}', [CategoryController::class, 'update']);
-Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
+// (categories routes are protected under the auth:api group above)

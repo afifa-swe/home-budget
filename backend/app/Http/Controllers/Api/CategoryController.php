@@ -9,13 +9,13 @@ use Illuminate\Validation\Rule;
 
 class CategoryController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $groups = Category::all()->groupBy('type')->map(function ($items) {
+        $userId = $request->user()->id;
+        $groups = Category::where('user_id', $userId)->get()->groupBy('type')->map(function ($items) {
             return $items->map(function ($i) { return ['id' => $i->id, 'name' => $i->name]; })->values();
         });
 
-        // Ensure both keys exist
         $result = [
             'income' => $groups->get('income', collect())->toArray(),
             'expense' => $groups->get('expense', collect())->toArray(),
@@ -30,15 +30,15 @@ class CategoryController extends Controller
             'name' => 'required|string|max:100|unique:categories,name',
             'type' => ['required', Rule::in(['income', 'expense'])],
         ]);
-
+        $data['user_id'] = $request->user()->id;
         $category = Category::create($data);
-
         return response()->json($category, 201);
     }
 
     public function update(Request $request, $id)
     {
-        $category = Category::findOrFail($id);
+        $userId = $request->user()->id;
+        $category = Category::where('id', $id)->where('user_id', $userId)->firstOrFail();
 
         $data = $request->validate([
             'name' => ['required','string','max:100', Rule::unique('categories','name')->ignore($category->id)],
@@ -50,11 +50,11 @@ class CategoryController extends Controller
         return response()->json($category);
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        $category = Category::findOrFail($id);
+        $userId = $request->user()->id;
+        $category = Category::where('id', $id)->where('user_id', $userId)->firstOrFail();
         $category->delete();
-
         return response()->json(null, 204);
     }
 }

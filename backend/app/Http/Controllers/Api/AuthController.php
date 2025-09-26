@@ -56,7 +56,7 @@ class AuthController extends Controller
         $clientSecret = config('services.passport.password_client_secret');
 
         if (! $clientId || ! $clientSecret) {
-            return response()->json(['message' => 'Password grant client not configured in env (PASSPORT_PASSWORD_CLIENT_ID/SECRET)'], 500);
+            return response()->json(['message' => 'Password grant client not configured in env'], 500);
         }
 
         $params = [

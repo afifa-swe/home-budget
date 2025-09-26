@@ -24,11 +24,19 @@ class TransactionsDemoSeeder extends Seeder
             ['type' => 'expense', 'category' => 'Другое', 'amount' => 10000.00, 'comment' => 'Misc', 'daysAgo' => 29],
         ];
 
+        $user = \App\Models\User::first();
+        if (! $user) {
+            $user = \App\Models\User::factory()->create([
+                'name' => 'Seed User',
+                'email' => 'seed@example.com',
+            ]);
+        }
+
         foreach ($examples as $ex) {
-            // try to find the category by name; if missing, pick a random category of the same type
-            $cat = Category::where('name', $ex['category'])->first();
+            // try to find the category by name for this user; if missing, pick a random category of the same type for this user
+            $cat = Category::where('name', $ex['category'])->where('user_id', $user->id)->first();
             if (! $cat) {
-                $cat = Category::where('type', $ex['type'])->inRandomOrder()->first();
+                $cat = Category::where('type', $ex['type'])->where('user_id', $user->id)->inRandomOrder()->first();
             }
 
             $categoryId = $cat ? $cat->id : null;
@@ -37,6 +45,7 @@ class TransactionsDemoSeeder extends Seeder
                 'occurred_at' => $now->copy()->subDays($ex['daysAgo']),
                 'type' => $ex['type'],
                 'category_id' => $categoryId,
+                'user_id' => $user->id,
                 'amount' => $ex['amount'],
                 'comment' => $ex['comment'],
             ]);

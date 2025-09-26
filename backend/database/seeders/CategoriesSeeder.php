@@ -23,12 +23,26 @@ class CategoriesSeeder extends Seeder
             'Другое',
         ];
 
+        $user = \App\Models\User::first();
+        if (! $user) {
+            $user = \App\Models\User::factory()->create([
+                'name' => 'Seed User',
+                'email' => 'seed@example.com',
+            ]);
+        }
+
         foreach ($income as $name) {
-            Category::firstOrCreate(['name' => $name], ['type' => 'income']);
+            Category::firstOrCreate([
+                'name' => $name,
+                'user_id' => $user->id,
+            ], ['type' => 'income']);
         }
 
         foreach ($expense as $name) {
-            Category::firstOrCreate(['name' => $name], ['type' => 'expense']);
+            Category::firstOrCreate([
+                'name' => $name,
+                'user_id' => $user->id,
+            ], ['type' => 'expense']);
         }
     }
 }
