@@ -9,6 +9,9 @@
       <template #item.occurred_at="{ item }">
         {{ formatDate(item.occurred_at) }}
       </template>
+      <template #item.category="{ item }">
+        {{ item.category?.name ?? '' }}
+      </template>
       <template #item.amount="{ item }">
         {{ formatMoney(item.amount ?? 0) }}
       </template>
@@ -33,7 +36,7 @@ import TransactionForm from './TransactionForm.vue'
 type Transaction = {
   id?: number
   type?: string
-  category?: string
+  category?: { id?: number, name?: string }
   occurred_at?: string
   amount?: number
   running_balance?: number

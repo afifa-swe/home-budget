@@ -5,7 +5,7 @@
         <v-select v-model="form.type" :items="['income','expense']" label="Тип" />
       </v-col>
       <v-col cols="12" md="3">
-        <v-select v-model="form.category" :items="categoriesList" label="Категория" />
+        <v-select v-model="form.category_id" :items="categoriesList" item-text="name" item-value="id" label="Категория" />
       </v-col>
       <v-col cols="12" md="3">
         <v-text-field v-model="form.occurred_at" type="datetime-local" label="Дата" />
@@ -25,20 +25,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, watchEffect } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useTransactionsStore } from '../stores/useTransactionsStore'
 import { useCategoriesStore } from '../stores/useCategoriesStore'
-import { toRefs } from 'vue'
 
 const props = defineProps<{ editItem?: any }>()
 const emit = defineEmits(['saved', 'cancel'])
 
 const tx = useTransactionsStore()
-const cat = useCategoriesStore()
+const categoriesStore = useCategoriesStore()
 
 const defaultForm = () => ({
   type: 'expense',
-  category: '',
+  category_id: null,
   occurred_at: '',
   amount: 0,
   comment: ''
@@ -51,10 +50,13 @@ watch(
   () => props.editItem,
   (val) => {
     if (val) {
-      form.value = { ...val }
-      // Преобразуем дату для input type="datetime-local"
-      if (form.value.occurred_at) {
-        form.value.occurred_at = form.value.occurred_at.slice(0, 16)
+      // map incoming editItem which may have category object to form
+      form.value = {
+        type: val.type || 'expense',
+        category_id: val.category ? val.category.id : (val.category_id ?? null),
+        occurred_at: val.occurred_at ? val.occurred_at.slice(0,16) : '',
+        amount: val.amount ?? 0,
+        comment: val.comment ?? ''
       }
     } else {
       form.value = defaultForm()
@@ -64,25 +66,30 @@ watch(
 )
 
 const categoriesList = computed(() => {
-  const incomeArr: string[] = Array.isArray(cat.income) ? (cat.income as string[]) : (cat.income && (cat.income as any).value) || []
-  const expenseArr: string[] = Array.isArray(cat.expense) ? (cat.expense as string[]) : (cat.expense && (cat.expense as any).value) || []
-  return form.value.type === 'income' ? incomeArr : expenseArr
+  const items = categoriesStore.items || []
+  return items.filter((c: any) => c.type === form.value.type)
 })
 
 onMounted(async () => {
   try {
-    await cat.fetchCategories()
+    await categoriesStore.fetchCategories()
+    console.log('categories loaded', categoriesStore.items)
   } catch (e) {
     console.error('fetchCategories failed', e)
   }
 })
 
 watch(() => form.value.type, () => {
-  form.value.category = ''
+  form.value.category_id = null
 })
 
 async function onSubmit() {
   try {
+    if (!form.value.category_id) {
+      alert('Выберите категорию')
+      return
+    }
+
     if (isEdit.value && props.editItem?.id) {
       await tx.updateTransaction(props.editItem.id, {
         ...form.value,

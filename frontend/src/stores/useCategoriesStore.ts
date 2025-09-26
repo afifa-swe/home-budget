@@ -3,28 +3,54 @@ import { ref } from 'vue'
 import api from '../api'
 
 export const useCategoriesStore = defineStore('categories', () => {
-  const income = ref<string[]>([])
-  const expense = ref<string[]>([])
+  const items = ref<any[]>([])
 
   async function fetchCategories() {
     try {
       const res = await api.get('/categories')
-      console.log('fetchCategories response', res && res.data)
-      income.value = Array.isArray(res.data?.income) ? res.data.income : []
-      expense.value = Array.isArray(res.data?.expense) ? res.data.expense : []
-      console.log('income', income.value, 'expense', expense.value)
-      return true
+      const data = res.data
+      // Support both flattened array response and grouped { income:[], expense:[] }
+      if (Array.isArray(data)) {
+        items.value = data
+      } else if (data && (Array.isArray(data.income) || Array.isArray(data.expense))) {
+        const income = Array.isArray(data.income) ? data.income : []
+        const expense = Array.isArray(data.expense) ? data.expense : []
+        items.value = [...income, ...expense]
+      } else {
+        // Fallback: empty
+        items.value = []
+      }
+      return items.value
     } catch (e: any) {
       console.error('fetchCategories error', e?.response?.data ?? e.message)
-      income.value = []
-      expense.value = []
-      return false
+      items.value = []
+      throw e
     }
   }
 
+  async function createCategory(payload: any) {
+    const res = await api.post('/categories', payload)
+    // refresh list from server to keep consistent ordering/types
+    await fetchCategories()
+    return res.data
+  }
+
+  async function updateCategory(id: number, payload: any) {
+    const res = await api.put(`/categories/${id}`, payload)
+    await fetchCategories()
+    return res.data
+  }
+
+  async function deleteCategory(id: number) {
+    await api.delete(`/categories/${id}`)
+    await fetchCategories()
+  }
+
   return {
-    income,
-    expense,
+    items,
     fetchCategories,
+    createCategory,
+    updateCategory,
+    deleteCategory,
   }
 })

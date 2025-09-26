@@ -18,8 +18,14 @@ export const useTransactionsStore = defineStore('transactions', () => {
 
       const res = await api.get('/transactions', { params })
 
-      // Expecting an array from API
+      // Expecting an array from API; ensure category is object if present
       items.value = Array.isArray(res.data) ? res.data : (res.data?.data ?? [])
+
+      // normalize: if category is present as string, convert to { id: null, name: string }
+      items.value = items.value.map((t: any) => ({
+        ...t,
+        category: typeof t.category === 'object' ? t.category : (t.category ? { id: t.category_id ?? null, name: t.category } : null)
+      }))
 
       if (!items.value || items.value.length === 0) {
         console.log('fetchTransactions: empty result from API', res)
@@ -36,16 +42,28 @@ export const useTransactionsStore = defineStore('transactions', () => {
   }
 
   async function createTransaction(payload: any) {
-    const res = await api.post('/transactions', payload)
-    items.value.push(res.data)
-    return res.data
+    // ensure we send category_id only
+    const body = { ...payload }
+    if (body.category && typeof body.category === 'object') body.category_id = body.category.id
+    delete body.category
+
+    const res = await api.post('/transactions', body)
+    // API returns transaction with category name; normalize
+    const t = { ...res.data, category: res.data.category ? { id: res.data.category_id ?? null, name: res.data.category } : null }
+    items.value.push(t)
+    return t
   }
 
   async function updateTransaction(id: number, payload: any) {
-    const res = await api.put(`/transactions/${id}`, payload)
+    const body = { ...payload }
+    if (body.category && typeof body.category === 'object') body.category_id = body.category.id
+    delete body.category
+
+    const res = await api.put(`/transactions/${id}`, body)
     const idx = items.value.findIndex((i: any) => i.id === id)
-    if (idx !== -1) items.value.splice(idx, 1, res.data)
-    return res.data
+    const t = { ...res.data, category: res.data.category ? { id: res.data.category_id ?? null, name: res.data.category } : null }
+    if (idx !== -1) items.value.splice(idx, 1, t)
+    return t
   }
 
   async function deleteTransaction(id: number) {
