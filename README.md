@@ -1,130 +1,109 @@
-# HomeBudget
+# Home Budget — семейная бухгалтерия
 
 Краткое описание
-----------------
-HomeBudget — онлайн-сервис для учёта доходов и расходов семьи.
+-----------------
+Приложение для учёта доходов и расходов семьи с поддержкой категорий и месячной статистики. Предназначено как учебный/демо-проект с готовой Docker-настройкой и API для интеграции фронтенда.
 
-Технологический стек
---------------------
-- Backend: Laravel (PHP 8.2), PostgreSQL, Nginx, Docker
-- Frontend: Vue 3, Vite, Vuetify, Pinia, Axios
+Стек технологий
+---------------
+- Backend: Laravel (PHP 8.2) с Laravel Passport (Password Grant)
+- База: PostgreSQL
+- Frontend: Vue 3 + Vite + Vuetify + Pinia
+- Docker: контейнеры nginx, php-fpm, node, postgres (docker-compose)
+- Postman: коллекция для тестирования API
 
-Функционал
----------
-- CRUD транзакций (доходы/расходы)
-- Категории доходов и расходов (конфигурируемые)
-- Автоматическая статистика по месяцам с вычислением running balance
-- Авторизация необязательна (демо-проект)
-
-Установка
----------
-1. Клонировать репозиторий:
+Установка и запуск
+------------------
+1. Клонируйте репозиторий:
 
    git clone <REPO_URL>
    cd home-budget
 
-2. Запустить через Docker:
+2. Скопируйте и настройте окружение для backend (файл `backend/.env`):
+
+   - Установите параметры подключения к БД (DB_HOST, DB_PORT, DB_DATABASE, DB_USERNAME, DB_PASSWORD).
+   - Укажите URL приложения `APP_URL` (по умолчанию http://localhost:8078).
+   - Для аутентификации Passport добавьте:
+
+     PASSPORT_PASSWORD_CLIENT_ID=your-client-id
+     PASSPORT_PASSWORD_CLIENT_SECRET=your-client-secret
+
+   Примечание: client_id и client_secret можно получить командой внутри контейнера приложения:
+
+     docker exec -it hb_app php artisan passport:client --password --name="Password Grant Client" --no-interaction
+
+3. Поднять контейнеры:
 
    docker compose up -d --build
 
-3. Backend — выполнить миграции и сиды:
+4. Выполнить миграции и сиды (внутри бэкенд-контейнера):
 
-   # если хотите выполнить внутри контейнера backend (рекомендуется)
-   docker compose exec backend php artisan migrate --seed
+   docker compose exec hb_app php artisan migrate --seed
 
-   Или локально в папке backend:
+   (для полных пересборок/очистки можно использовать)
 
-   php artisan migrate --seed
+   docker exec -it hb_app php artisan migrate:fresh --seed
+   docker exec -it hb_app php artisan config:clear
 
-4. Frontend — сборка (в контейнере node или локально):
-
-   # внутри контейнера с node, если настроено
-   docker compose exec frontend npm install
-   docker compose exec frontend npm run build
+5. Сборка фронтенда (локально или в контейнере node):
 
    # локально в папке frontend
+   cd frontend
    npm install
    npm run build
 
-Замечания
----------
-- Dev-сервер фронтенда: запускается командой `npm run dev` в папке `frontend` и доступен по умолчанию на порту 5176.
-- Произведённая сборка фронтенда (`dist`/`build`) можно проксировать через Nginx (в Docker) для обслуживания статических файлов.
+   # или через контейнер (если настроен)
+   docker compose exec frontend npm install
+   docker compose exec frontend npm run build
 
-Адреса по умолчанию
---------------------
-- Backend API: http://localhost:8078/api
-- Frontend (dev): http://localhost:5176
-- Собранный frontend (dist): можно проксировать через Nginx
+Авторизация (Laravel Passport)
+------------------------------
+API использует Laravel Passport с Password Grant. Для корректной работы логина/регистрации/получения токена нужно указать в окружении backend следующие переменные:
 
-Примеры API эндпоинтов
-----------------------
-- Получить список транзакций (GET):
+- PASSPORT_PASSWORD_CLIENT_ID
+- PASSPORT_PASSWORD_CLIENT_SECRET
 
-  GET /api/transactions
-  Response: 200 OK
-  [
-    {
-      "id": 1,
-      "type": "income",
-      "category": "Salary",
-      "occurred_at": "2025-09-01",
-      "amount": 1000.00,
-      "running_balance": 1000.00,
-      "comment": "Зарплата"
-    },
-    ...
-  ]
+Доступные маршруты для аутентификации:
 
-- Создать транзакцию (POST):
+- POST /api/register — регистрация (возвращает access_token)
+- POST /api/login — логин (возвращает access_token)
+- GET  /api/user — получить данные текущего пользователя (требует Authorization)
 
-  POST /api/transactions
-  Content-Type: application/json
+API (краткий список основных эндпоинтов)
+-------------------------------------
+- /api/transactions — CRUD транзакций (создание, чтение, обновление, удаление). Защищённый маршрут — требует Bearer токен.
+- /api/categories — CRUD категорий доходов/расходов. Защищённый.
+- /api/stats — статистика (ежемесячные / сводные данные). Защищённый.
 
-  {
-    "type": "expense",
-    "category": "Groceries",
-    "occurred_at": "2025-09-10",
-    "amount": 50.25,
-    "comment": "Продукты"
-  }
+Краткая структура бэкенда
+------------------------
+- Модели: `App\Models\User`, `App\Models\Transaction`, `App\Models\Category`.
+- Контроллеры API (в `app/Http/Controllers/Api`): `AuthController` (register/login/user), `TransactionController`, `CategoryController` и обработчик статистики.
+- Маршруты: `routes/api.php` содержит маршруты для аутентификации и защищённые маршруты для транзакций, категорий и статистики.
 
-  Response: 201 Created
-  {
-    "id": 42,
-    "type": "expense",
-    "category": "Groceries",
-    "occurred_at": "2025-09-10",
-    "amount": 50.25,
-    "running_balance": 949.75,
-    "comment": "Продукты"
-  }
-
-- Получить категории (GET):
-
-  GET /api/categories
-  Response: 200 OK
-  {
-    "income": ["Salary", "Gift"],
-    "expense": ["Groceries", "Rent", "Transport"]
-  }
-
-Screenshots
------------
-(Добавьте скриншоты интерфейса сюда позже — например: `screenshots/transactions.png`, `screenshots/dashboard.png`)
-
-Future Improvements
--------------------
-- Добавить интерактивные графики по доходам/расходам (Chart.js / ECharts)
-- Добавить полноценную авторизацию и роли пользователей
-- Экспорт/импорт транзакций в CSV/Excel
-- Фильтры и сложные запросы по категориям/датам
-- Режим многовалютности и истории курсов
-
-Контакты
+Frontend
 --------
-Проект — демо/учебный. Вопросы по использованию размещённого кода можно отправлять через систему контроля версий (issues) в репозитории.
+- Vue 3 приложение находится в папке `frontend`.
+- Логин/регистрация реализованы в компонентах `LoginView.vue` и `RegisterView.vue`.
+- Хранилище состояния: Pinia (есть `useAuthStore` для хранения `access_token` и данных пользователя).
+- Axios interceptor автоматически добавляет заголовок `Authorization: Bearer <token>` ко всем запросам (если токен сохранён в `localStorage`).
+
+Postman
+-------
+- В репозитории есть коллекция для тестирования API: `backend/postman/HomeBudget.postman_collection.json`.
+- Коллекция использует переменные: `baseUrl`, `client_id`, `client_secret`, `access_token`.
+
+Полезные команды
+----------------
+- Поднять контейнеры: docker compose up -d --build
+- Выполнить миграции и сиды: docker compose exec hb_app php artisan migrate --seed
+- Полный сброс БД и сиды: docker exec -it hb_app php artisan migrate:fresh --seed
+- Очистить конфигурацию: docker exec -it hb_app php artisan config:clear
+
+Лицензия и контакты
+-------------------
+Лицензию и контактную информацию можно добавить здесь. По умолчанию можно использовать MIT.
 
 ---
 
-Автор: HomeBudget (demo)
+Если нужно, могу дополнить README примерами запросов с curl, export-ом готового Postman Environment или короткой инструкцией по отладке контейнеров (docker compose logs и т.д.).
