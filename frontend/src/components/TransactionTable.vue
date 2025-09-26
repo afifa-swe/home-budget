@@ -9,6 +9,9 @@
       <template #item.occurred_at="{ item }">
         {{ formatDate(item.occurred_at) }}
       </template>
+      <template #item.type="{ item }">
+        {{ mapType(item.type) }}
+      </template>
       <template #item.category="{ item }">
         {{ item.category?.name ?? '' }}
       </template>
@@ -57,6 +60,11 @@ const headers = computed(() => [
   { title: 'Комментарий', key: 'comment' },
   { title: 'Действия', key: 'actions', sortable: false }
 ])
+
+function mapType(type?: string) {
+  if (!type) return ''
+  return type === 'income' ? 'Доход' : type === 'expense' ? 'Расход' : type
+}
 
 function formatDate(val?: string) {
   if (!val) return ''

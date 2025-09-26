@@ -20,7 +20,7 @@
 
     <v-data-table :items="items" :headers="headers">
       <template #item.type="{ item }">
-        {{ item.type }}
+        {{ mapType(item.type) }}
       </template>
       <template #item.actions="{ item }">
         <v-btn icon @click="startEdit(item)"><v-icon>mdi-pencil</v-icon></v-btn>
@@ -62,6 +62,11 @@ const headers = [
 
 const form = ref({ id: null, name: '', type: 'expense' })
 const editDialog = ref(false)
+
+function mapType(type?: string) {
+  if (!type) return ''
+  return type === 'income' ? 'Доход' : type === 'expense' ? 'Расход' : type
+}
 
 onMounted(async () => {
   await store.fetchCategories()

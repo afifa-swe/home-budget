@@ -5,7 +5,7 @@
         <v-select v-model="form.type" :items="['income','expense']" label="Тип" />
       </v-col>
       <v-col cols="12" md="3">
-        <v-select v-model="form.category_id" :items="categoriesList" item-text="name" item-value="id" label="Категория" />
+  <v-select v-model="form.category_id" :items="categoriesList" item-title="name" item-value="id" label="Категория" />
       </v-col>
       <v-col cols="12" md="3">
         <v-text-field v-model="form.occurred_at" type="datetime-local" label="Дата" />
@@ -67,7 +67,7 @@ watch(
 
 const categoriesList = computed(() => {
   const items = categoriesStore.items || []
-  return items.filter((c: any) => c.type === form.value.type)
+  return (items as any[]).filter((c: any) => c.type === form.value.type)
 })
 
 onMounted(async () => {
