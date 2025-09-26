@@ -8,9 +8,65 @@
     {
       "key": "baseUrl",
       "value": "http://localhost:8078/api"
+    },
+    {
+      "key": "access_token",
+      "value": ""
+    },
+    {
+      "key": "client_id",
+      "value": ""
+    },
+    {
+      "key": "client_secret",
+      "value": ""
     }
   ],
   "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Test\", \"email\": \"test@test.com\", \"password\": \"secret\", \"password_confirmation\": \"secret\", \"client_id\": \"{{client_id}}\", \"client_secret\": \"{{client_secret}}\"\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{baseUrl}}/register", "host": ["{{baseUrl}}"], "path": ["register"] }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"test@test.com\", \"password\": \"secret\", \"client_id\": \"{{client_id}}\", \"client_secret\": \"{{client_secret}}\"\n}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{baseUrl}}/login", "host": ["{{baseUrl}}"], "path": ["login"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.access_token) { pm.collectionVariables.set('access_token', json.access_token); }",
+                  "console.log('access_token saved to collection variable')"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get user",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}", "type": "text" }, { "key": "Accept", "value": "application/json" } ],
+            "url": { "raw": "{{baseUrl}}/user", "host": ["{{baseUrl}}"], "path": ["user"] }
+          }
+        }
+      ]
+    },
     {
       "name": "Transactions",
       "item": [
@@ -20,7 +76,8 @@
             "method": "GET",
             "header": [
               { "key": "Content-Type", "value": "application/json" },
-              { "key": "Accept", "value": "application/json" }
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}", "type": "text" }
             ],
             "url": {
               "raw": "{{baseUrl}}/transactions?month=2025-09",
@@ -46,6 +103,7 @@
             "header": [
               { "key": "Content-Type", "value": "application/json" },
               { "key": "Accept", "value": "application/json" }
+              ,{ "key": "Authorization", "value": "Bearer {{access_token}}", "type": "text" }
             ],
             "body": {
               "mode": "raw",
@@ -72,7 +130,7 @@
           "name": "Update transaction (PUT id=1)",
           "request": {
             "method": "PUT",
-            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" } ],
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}", "type": "text" } ],
             "body": { "mode": "raw", "raw": "{ \"amount\": 300000, \"comment\": \"Updated salary\" }", "options": { "raw": { "language": "json" } } },
             "url": { "raw": "{{baseUrl}}/transactions/1", "host": ["{{baseUrl}}"], "path": ["transactions","1"] }
           },
@@ -80,7 +138,7 @@
         },
         {
           "name": "Delete transaction (DELETE id=1)",
-          "request": { "method": "DELETE", "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" } ], "url": { "raw": "{{baseUrl}}/transactions/1", "host": ["{{baseUrl}}"], "path": ["transactions","1"] } },
+          "request": { "method": "DELETE", "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}", "type": "text" } ], "url": { "raw": "{{baseUrl}}/transactions/1", "host": ["{{baseUrl}}"], "path": ["transactions","1"] } },
           "response": [ { "name": "deleted", "status": "No Content", "code": 204, "body": "", "header": [ { "key": "Content-Type", "value": "application/json" } ] } ]
         }
       ]
@@ -90,14 +148,14 @@
       "item": [
         {
           "name": "List categories",
-          "request": { "method": "GET", "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" } ], "url": { "raw": "{{baseUrl}}/categories", "host": ["{{baseUrl}}"], "path": ["categories"] } },
+          "request": { "method": "GET", "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}", "type": "text" } ], "url": { "raw": "{{baseUrl}}/categories", "host": ["{{baseUrl}}"], "path": ["categories"] } },
           "response": [ { "name": "ok", "status": "OK", "code": 200, "body": "{ \"income\": [ { \"id\": 1, \"name\": \"Заработная плата\" } ], \"expense\": [ { \"id\": 3, \"name\": \"Продукты питания\" } ] }", "header": [ { "key": "Content-Type", "value": "application/json" } ] } ]
         },
         {
           "name": "Create category (POST)",
           "request": {
             "method": "POST",
-            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" } ],
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}", "type": "text" } ],
             "body": { "mode": "raw", "raw": "{ \"name\": \"Test category\", \"type\": \"expense\" }", "options": { "raw": { "language": "json" } } },
             "url": { "raw": "{{baseUrl}}/categories", "host": ["{{baseUrl}}"], "path": ["categories"] }
           },
@@ -105,12 +163,12 @@
         },
         {
           "name": "Update category (PUT id=1)",
-          "request": { "method": "PUT", "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{ \"name\": \"Updated category\" }", "options": { "raw": { "language": "json" } } }, "url": { "raw": "{{baseUrl}}/categories/1", "host": ["{{baseUrl}}"], "path": ["categories","1"] } },
+          "request": { "method": "PUT", "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}", "type": "text" } ], "body": { "mode": "raw", "raw": "{ \"name\": \"Updated category\" }", "options": { "raw": { "language": "json" } } }, "url": { "raw": "{{baseUrl}}/categories/1", "host": ["{{baseUrl}}"], "path": ["categories","1"] } },
           "response": [ { "name": "updated", "status": "OK", "code": 200, "body": "{ \"id\": 1, \"name\": \"Updated category\", \"type\": \"expense\" }", "header": [ { "key": "Content-Type", "value": "application/json" } ] } ]
         },
         {
           "name": "Delete category (DELETE id=1)",
-          "request": { "method": "DELETE", "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" } ], "url": { "raw": "{{baseUrl}}/categories/1", "host": ["{{baseUrl}}"], "path": ["categories","1"] } },
+            "request": { "method": "DELETE", "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}", "type": "text" } ], "url": { "raw": "{{baseUrl}}/categories/1", "host": ["{{baseUrl}}"], "path": ["categories","1"] } },
           "response": [ { "name": "deleted", "status": "No Content", "code": 204, "body": "", "header": [ { "key": "Content-Type", "value": "application/json" } ] } ]
         }
       ]
@@ -120,7 +178,7 @@
       "item": [
         {
           "name": "Monthly stats (year=2025)",
-          "request": { "method": "GET", "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" } ], "url": { "raw": "{{baseUrl}}/stats/monthly?year=2025", "host": ["{{baseUrl}}"], "path": ["stats","monthly"], "query": [ { "key": "year", "value": "2025" } ] } },
+          "request": { "method": "GET", "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}", "type": "text" } ], "url": { "raw": "{{baseUrl}}/stats/monthly?year=2025", "host": ["{{baseUrl}}"], "path": ["stats","monthly"], "query": [ { "key": "year", "value": "2025" } ] } },
           "response": [ { "name": "ok", "status": "OK", "code": 200, "body": "[ { \"month\": 9, \"total_income\": \"350000.00\", \"total_expense\": \"51200.50\", \"balance\": \"298799.50\" } ]", "header": [ { "key": "Content-Type", "value": "application/json" } ] } ]
         }
       ]
