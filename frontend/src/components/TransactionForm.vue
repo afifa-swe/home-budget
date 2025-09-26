@@ -17,9 +17,7 @@
         <v-btn color="primary" type="submit">{{ isEdit ? 'Сохранить' : 'Добавить' }}</v-btn>
         <v-btn v-if="isEdit" color="grey" @click="cancelEdit" variant="text">Отмена</v-btn>
       </v-col>
-      <v-col cols="12">
-        <v-textarea v-model="form.comment" label="Комментарий" />
-      </v-col>
+      
     </v-row>
   </v-form>
 </template>
@@ -40,7 +38,6 @@ const defaultForm = () => ({
   category_id: null,
   occurred_at: '',
   amount: 0,
-  comment: ''
 })
 const form = ref(defaultForm())
 
@@ -56,7 +53,6 @@ watch(
         category_id: val.category ? val.category.id : (val.category_id ?? null),
         occurred_at: val.occurred_at ? val.occurred_at.slice(0,16) : '',
         amount: val.amount ?? 0,
-        comment: val.comment ?? ''
       }
     } else {
       form.value = defaultForm()

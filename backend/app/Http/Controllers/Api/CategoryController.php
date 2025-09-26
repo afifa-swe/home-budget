@@ -26,11 +26,20 @@ class CategoryController extends Controller
 
     public function store(Request $request)
     {
+        $userId = $request->user()->id;
         $data = $request->validate([
-            'name' => 'required|string|max:100|unique:categories,name',
+            'name' => [
+                'required',
+                'string',
+                'max:100',
+                // unique per user
+                Rule::unique('categories', 'name')->where(function ($query) use ($userId) {
+                    return $query->where('user_id', $userId);
+                }),
+            ],
             'type' => ['required', Rule::in(['income', 'expense'])],
         ]);
-        $data['user_id'] = $request->user()->id;
+        $data['user_id'] = $userId;
         $category = Category::create($data);
         return response()->json($category, 201);
     }
@@ -41,7 +50,14 @@ class CategoryController extends Controller
         $category = Category::where('id', $id)->where('user_id', $userId)->firstOrFail();
 
         $data = $request->validate([
-            'name' => ['required','string','max:100', Rule::unique('categories','name')->ignore($category->id)],
+            'name' => [
+                'required',
+                'string',
+                'max:100',
+                Rule::unique('categories', 'name')->where(function ($query) use ($userId) {
+                    return $query->where('user_id', $userId);
+                })->ignore($category->id),
+            ],
             'type' => [Rule::in(['income', 'expense'])],
         ]);
 

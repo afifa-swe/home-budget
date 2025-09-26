@@ -43,7 +43,6 @@ type Transaction = {
   occurred_at?: string
   amount?: number
   running_balance?: number
-  comment?: string
   [key: string]: any
 }
 
@@ -57,7 +56,6 @@ const headers = computed(() => [
   { title: 'Дата', key: 'occurred_at' },
   { title: 'Сумма', key: 'amount' },
   { title: 'Итого', key: 'running_balance' },
-  { title: 'Комментарий', key: 'comment' },
   { title: 'Действия', key: 'actions', sortable: false }
 ])
 
