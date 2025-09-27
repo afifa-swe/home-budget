@@ -14,6 +14,8 @@ class StatsController extends Controller
         $year = $request->query('year', date('Y'));
 
         $rows = Transaction::selectRaw("EXTRACT(MONTH FROM occurred_at) AS month, SUM(CASE WHEN type='income' THEN amount ELSE 0 END) AS total_income, SUM(CASE WHEN type='expense' THEN amount ELSE 0 END) AS total_expense")
+            // ensure only current user's transactions are aggregated
+            ->where('user_id', auth()->id())
             ->whereYear('occurred_at', $year)
             ->groupBy('month')
             ->orderBy('month')

@@ -14,6 +14,10 @@
           <v-btn :href="href" :class="[{ 'v-btn--active': isActive } ]" text @click="navigate">Категории</v-btn>
         </router-link>
 
+        <router-link to="/stats" custom v-slot="{ navigate, href, isActive }">
+          <v-btn :href="href" :class="[{ 'v-btn--active': isActive } ]" text @click="navigate">Статистика</v-btn>
+        </router-link>
+
         <v-btn text @click="onLogout">Выйти</v-btn>
       </div>
       <div v-else>
