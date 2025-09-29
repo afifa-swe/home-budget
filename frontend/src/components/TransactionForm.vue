@@ -33,12 +33,26 @@ const emit = defineEmits(['saved', 'cancel'])
 const tx = useTransactionsStore()
 const categoriesStore = useCategoriesStore()
 
+// helper to produce a datetime string compatible with <input type="datetime-local">
+function nowForDatetimeLocal() {
+  const d = new Date()
+  const pad = (n: number) => n.toString().padStart(2, '0')
+  const year = d.getFullYear()
+  const month = pad(d.getMonth() + 1)
+  const day = pad(d.getDate())
+  const hours = pad(d.getHours())
+  const minutes = pad(d.getMinutes())
+  return `${year}-${month}-${day}T${hours}:${minutes}`
+}
+
 const defaultForm = () => ({
   type: 'expense',
   category_id: null,
-  occurred_at: '',
+  // set to current local datetime so the input shows a default value
+  occurred_at: nowForDatetimeLocal(),
   amount: 0,
 })
+
 const form = ref(defaultForm())
 
 const isEdit = computed(() => !!props.editItem)
