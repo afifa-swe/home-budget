@@ -6,6 +6,9 @@
       @cancel="onCancelEdit"
     />
     <v-data-table style="height: 700px;" :items="items" :headers="headers" :loading="loading">
+        <template #item.comment="{ item }">
+          {{ item.comment ?? '' }}
+        </template>
       <template #item.occurred_at="{ item }">
         {{ formatDate(item.occurred_at) }}
       </template>
@@ -53,6 +56,7 @@ const loading = computed(() => tx.loading)
 const headers = computed(() => [
   { title: 'Тип', key: 'type' },
   { title: 'Категория', key: 'category' },
+  { title: 'Комментарий', key: 'comment' },
   { title: 'Дата', key: 'occurred_at' },
   { title: 'Сумма', key: 'amount' },
   { title: 'Итого', key: 'running_balance' },

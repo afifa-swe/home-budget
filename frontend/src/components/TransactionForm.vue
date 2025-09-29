@@ -13,6 +13,9 @@
       <v-col cols="12" md="2">
         <v-text-field v-model.number="form.amount" type="number" label="Сумма" />
       </v-col>
+      <v-col cols="12" md="3">
+        <v-text-field v-model="form.comment" type="text" label="Комментарий" />
+      </v-col>
       <v-col cols="12" md="1">
         <v-btn color="primary" type="submit">{{ isEdit ? 'Сохранить' : 'Добавить' }}</v-btn>
         <v-btn v-if="isEdit" color="grey" @click="cancelEdit" variant="text">Отмена</v-btn>
@@ -51,6 +54,7 @@ const defaultForm = () => ({
   // set to current local datetime so the input shows a default value
   occurred_at: nowForDatetimeLocal(),
   amount: 0,
+  comment: '',
 })
 
 const form = ref(defaultForm())
@@ -67,6 +71,7 @@ watch(
         category_id: val.category ? val.category.id : (val.category_id ?? null),
         occurred_at: val.occurred_at ? val.occurred_at.slice(0,16) : '',
         amount: val.amount ?? 0,
+        comment: val.comment ?? '',
       }
     } else {
       form.value = defaultForm()
