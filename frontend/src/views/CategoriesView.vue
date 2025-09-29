@@ -78,10 +78,13 @@ async function onCreate() {
       alert('Введите название и выберите тип')
       return
     }
-    await store.createCategory({ name: form.value.name, type: form.value.type })
+    const payload = { name: form.value.name, type: form.value.type }
+    console.debug('[CategoriesView] creating category', payload)
+    await store.createCategory(payload)
     form.value.name = ''
   } catch (e) {
-    alert('Ошибка создания')
+    console.error('[CategoriesView] create error', e)
+    alert('Ошибка создания: ' + (e?.response?.data?.message || e?.message || ''))
   }
 }
 

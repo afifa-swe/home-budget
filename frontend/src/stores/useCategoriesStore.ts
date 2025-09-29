@@ -29,21 +29,41 @@ export const useCategoriesStore = defineStore('categories', () => {
   }
 
   async function createCategory(payload: any) {
-    const res = await api.post('/categories', payload)
-    // refresh list from server to keep consistent ordering/types
-    await fetchCategories()
-    return res.data
+    try {
+      console.debug('[categories] create payload:', payload)
+      const res = await api.post('/categories', payload)
+      console.debug('[categories] create response:', res && res.data)
+      // refresh list from server to keep consistent ordering/types
+      await fetchCategories()
+      return res.data
+    } catch (err: any) {
+      // log useful debug info to console for easier diagnosis in browser
+      console.error('[categories] create error', err?.response?.status, err?.response?.data ?? err?.message)
+      throw err
+    }
   }
 
   async function updateCategory(id: number, payload: any) {
-    const res = await api.put(`/categories/${id}`, payload)
-    await fetchCategories()
-    return res.data
+    try {
+      console.debug('[categories] update payload:', id, payload)
+      const res = await api.put(`/categories/${id}`, payload)
+      await fetchCategories()
+      return res.data
+    } catch (err: any) {
+      console.error('[categories] update error', err?.response?.status, err?.response?.data ?? err?.message)
+      throw err
+    }
   }
 
   async function deleteCategory(id: number) {
-    await api.delete(`/categories/${id}`)
-    await fetchCategories()
+    try {
+      console.debug('[categories] delete id:', id)
+      await api.delete(`/categories/${id}`)
+      await fetchCategories()
+    } catch (err: any) {
+      console.error('[categories] delete error', err?.response?.status, err?.response?.data ?? err?.message)
+      throw err
+    }
   }
 
   return {
