@@ -25,6 +25,15 @@ class AuthServiceProvider extends ServiceProvider
         $this->registerPolicies();
 
         // enable the password grant so we can issue access + refresh tokens
-        Passport::enablePasswordGrant();
+        // Register passport routes and enable password grant
+        // Some installations of Passport don't expose the routes() method in the
+        // used class; guard the call to avoid a fatal error during app boot.
+        if (method_exists(Passport::class, 'routes')) {
+            Passport::routes();
+        }
+        // enable password grant support if available
+        if (method_exists(Passport::class, 'enablePasswordGrant')) {
+            Passport::enablePasswordGrant();
+        }
     }
 }
