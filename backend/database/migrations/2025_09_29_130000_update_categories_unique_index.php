@@ -28,10 +28,12 @@ return new class extends Migration
 
             // Deduplicate categories per user_id + name while preserving the lowest id
             // and reassign any transactions referencing duplicate categories to the kept id.
-            // This uses a CTE with window functions (Postgres) to find duplicates.
-            // If the DB does not support window functions this will throw and abort the migration.
-                        // Update transactions to point to the kept category id (per user_id + name)
-                        DB::statement(<<<'SQL'
+            // Use raw Postgres SQL when available (CTE + window functions). For SQLite (the
+            // default for tests) or other drivers that don't support the statements below
+            // we perform the deduplication using PHP queries so migrations run cleanly.
+            if (DB::connection()->getDriverName() === 'pgsql') {
+                // Update transactions to point to the kept category id (per user_id + name)
+                DB::statement(<<<'SQL'
 WITH ranked AS (
     SELECT id, user_id, name, MIN(id) OVER (PARTITION BY user_id, name) AS keep_id
     FROM categories
@@ -43,10 +45,10 @@ SET category_id = dupes.keep_id
 FROM dupes
 WHERE transactions.category_id = dupes.id;
 SQL
-                        );
+                );
 
-                        // Delete duplicate category rows (those whose id is not the kept id)
-                        DB::statement(<<<'SQL'
+                // Delete duplicate category rows (those whose id is not the kept id)
+                DB::statement(<<<'SQL'
 WITH ranked AS (
     SELECT id, user_id, name, MIN(id) OVER (PARTITION BY user_id, name) AS keep_id
     FROM categories
@@ -55,7 +57,34 @@ DELETE FROM categories c
 USING ranked r
 WHERE c.id = r.id AND r.id <> r.keep_id;
 SQL
-                        );
+                );
+            } else {
+                // Fallback: do the deduplication in PHP for SQLite and other drivers.
+                $groups = DB::table('categories')
+                    ->select('user_id', 'name', DB::raw('MIN(id) as keep_id'))
+                    ->groupBy('user_id', 'name')
+                    ->havingRaw('COUNT(*) > 1')
+                    ->get();
+
+                foreach ($groups as $g) {
+                    $dupes = DB::table('categories')
+                        ->where('user_id', $g->user_id)
+                        ->where('name', $g->name)
+                        ->where('id', '<>', $g->keep_id)
+                        ->pluck('id')
+                        ->toArray();
+
+                    if (!empty($dupes)) {
+                        DB::table('transactions')
+                            ->whereIn('category_id', $dupes)
+                            ->update(['category_id' => $g->keep_id]);
+
+                        DB::table('categories')
+                            ->whereIn('id', $dupes)
+                            ->delete();
+                    }
+                }
+            }
 
             // Finally, create the composite unique index on (user_id, name)
             Schema::table('categories', function (Blueprint $table) {

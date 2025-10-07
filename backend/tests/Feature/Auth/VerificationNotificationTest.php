@@ -18,8 +18,11 @@ class VerificationNotificationTest extends TestCase
 
         $user = User::factory()->unverified()->create();
 
-        $this->actingAs($user)
-            ->post(route('verification.send'))
+        // Init session/CSRF and set previous URL to home so controller's back() returns home
+        $this->actingAs($user);
+        $this->get(route('home'));
+
+        $this->post(route('verification.send'), ['_token' => session('_token')])
             ->assertRedirect(route('home'));
 
         Notification::assertSentTo($user, VerifyEmail::class);
@@ -31,8 +34,10 @@ class VerificationNotificationTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->actingAs($user)
-            ->post(route('verification.send'))
+        $this->actingAs($user);
+        $this->get(route('dashboard'));
+
+        $this->post(route('verification.send'), ['_token' => session('_token')])
             ->assertRedirect(route('dashboard', absolute: false));
 
         Notification::assertNothingSent();

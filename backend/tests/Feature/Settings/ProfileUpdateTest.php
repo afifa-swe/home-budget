@@ -25,9 +25,13 @@ class ProfileUpdateTest extends TestCase
     {
         $user = User::factory()->create();
 
+        $this->actingAs($user);
+        // initialize session/CSRF
+        $this->get(route('profile.edit'));
+
         $response = $this
-            ->actingAs($user)
             ->patch(route('profile.update'), [
+                '_token' => session('_token'),
                 'name' => 'Test User',
                 'email' => 'test@example.com',
             ]);
@@ -47,9 +51,13 @@ class ProfileUpdateTest extends TestCase
     {
         $user = User::factory()->create();
 
+        $this->actingAs($user);
+        // initialize session/CSRF
+        $this->get(route('profile.edit'));
+
         $response = $this
-            ->actingAs($user)
             ->patch(route('profile.update'), [
+                '_token' => session('_token'),
                 'name' => 'Test User',
                 'email' => $user->email,
             ]);
@@ -65,9 +73,13 @@ class ProfileUpdateTest extends TestCase
     {
         $user = User::factory()->create();
 
+        $this->actingAs($user);
+        // initialize session/CSRF
+        $this->get(route('profile.edit'));
+
         $response = $this
-            ->actingAs($user)
             ->delete(route('profile.destroy'), [
+                '_token' => session('_token'),
                 'password' => 'password',
             ]);
 
@@ -83,10 +95,14 @@ class ProfileUpdateTest extends TestCase
     {
         $user = User::factory()->create();
 
+        $this->actingAs($user);
+        // initialize session/CSRF
+        $this->get(route('profile.edit'));
+
         $response = $this
-            ->actingAs($user)
             ->from(route('profile.edit'))
             ->delete(route('profile.destroy'), [
+                '_token' => session('_token'),
                 'password' => 'wrong-password',
             ]);
 

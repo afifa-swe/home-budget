@@ -26,10 +26,14 @@ class PasswordUpdateTest extends TestCase
     {
         $user = User::factory()->create();
 
+        $this->actingAs($user);
+        // initialize session/CSRF
+        $this->get(route('password.edit'));
+
         $response = $this
-            ->actingAs($user)
             ->from(route('password.edit'))
             ->put(route('password.update'), [
+                '_token' => session('_token'),
                 'current_password' => 'password',
                 'password' => 'new-password',
                 'password_confirmation' => 'new-password',
@@ -46,10 +50,14 @@ class PasswordUpdateTest extends TestCase
     {
         $user = User::factory()->create();
 
+        $this->actingAs($user);
+        // initialize session/CSRF
+        $this->get(route('password.edit'));
+
         $response = $this
-            ->actingAs($user)
             ->from(route('password.edit'))
             ->put(route('password.update'), [
+                '_token' => session('_token'),
                 'current_password' => 'wrong-password',
                 'password' => 'new-password',
                 'password_confirmation' => 'new-password',

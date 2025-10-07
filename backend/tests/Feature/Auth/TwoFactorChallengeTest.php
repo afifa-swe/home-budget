@@ -42,7 +42,11 @@ class TwoFactorChallengeTest extends TestCase
             'two_factor_confirmed_at' => now(),
         ])->save();
 
+        // Initialize session/CSRF
+        $this->get(route('login'));
+
         $this->post(route('login'), [
+            '_token' => session('_token'),
             'email' => $user->email,
             'password' => 'password',
         ]);

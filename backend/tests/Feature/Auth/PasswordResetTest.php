@@ -25,7 +25,10 @@ class PasswordResetTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->post(route('password.email'), ['email' => $user->email]);
+        // Initialize session/CSRF
+        $this->get(route('password.request'));
+
+        $this->post(route('password.email'), ['_token' => session('_token'), 'email' => $user->email]);
 
         Notification::assertSentTo($user, ResetPassword::class);
     }
@@ -36,7 +39,10 @@ class PasswordResetTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->post(route('password.email'), ['email' => $user->email]);
+    // Initialize session/CSRF
+    $this->get(route('password.request'));
+
+    $this->post(route('password.email'), ['_token' => session('_token'), 'email' => $user->email]);
 
         Notification::assertSentTo($user, ResetPassword::class, function ($notification) {
             $response = $this->get(route('password.reset', $notification->token));
@@ -53,10 +59,14 @@ class PasswordResetTest extends TestCase
 
         $user = User::factory()->create();
 
-        $this->post(route('password.email'), ['email' => $user->email]);
+    // Initialize session/CSRF
+    $this->get(route('password.request'));
+
+    $this->post(route('password.email'), ['_token' => session('_token'), 'email' => $user->email]);
 
         Notification::assertSentTo($user, ResetPassword::class, function ($notification) use ($user) {
             $response = $this->post(route('password.store'), [
+                '_token' => session('_token'),
                 'token' => $notification->token,
                 'email' => $user->email,
                 'password' => 'password',
@@ -75,7 +85,11 @@ class PasswordResetTest extends TestCase
     {
         $user = User::factory()->create();
 
+        // Initialize session/CSRF
+        $this->get(route('password.request'));
+
         $response = $this->post(route('password.store'), [
+            '_token' => session('_token'),
             'token' => 'invalid-token',
             'email' => $user->email,
             'password' => 'newpassword123',

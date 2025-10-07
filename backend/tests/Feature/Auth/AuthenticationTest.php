@@ -22,12 +22,14 @@ class AuthenticationTest extends TestCase
     public function test_users_can_authenticate_using_the_login_screen()
     {
         $user = User::factory()->create();
+        // Visit login page first to set session / CSRF
+        $this->get(route('login'));
 
         $response = $this->post(route('login.store'), [
+            '_token' => session('_token'),
             'email' => $user->email,
             'password' => 'password',
         ]);
-
         $this->assertAuthenticated();
         $response->assertRedirect(route('dashboard', absolute: false));
     }
@@ -51,7 +53,11 @@ class AuthenticationTest extends TestCase
             'two_factor_confirmed_at' => now(),
         ])->save();
 
+        // Initialize session/CSRF
+        $this->get(route('login'));
+
         $response = $this->post(route('login'), [
+            '_token' => session('_token'),
             'email' => $user->email,
             'password' => 'password',
         ]);
@@ -65,7 +71,10 @@ class AuthenticationTest extends TestCase
     {
         $user = User::factory()->create();
 
+        $this->get(route('login'));
+
         $this->post(route('login.store'), [
+            '_token' => session('_token'),
             'email' => $user->email,
             'password' => 'wrong-password',
         ]);
@@ -77,7 +86,11 @@ class AuthenticationTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->post(route('logout'));
+    // Ensure session and authenticated context
+    $this->actingAs($user);
+    $this->get(route('dashboard'));
+
+    $response = $this->post(route('logout'), ['_token' => session('_token')]);
 
         $this->assertGuest();
         $response->assertRedirect(route('home'));
@@ -89,7 +102,10 @@ class AuthenticationTest extends TestCase
 
         RateLimiter::increment(implode('|', [$user->email, '127.0.0.1']), amount: 10);
 
+        $this->get(route('login'));
+
         $response = $this->post(route('login.store'), [
+            '_token' => session('_token'),
             'email' => $user->email,
             'password' => 'wrong-password',
         ]);
