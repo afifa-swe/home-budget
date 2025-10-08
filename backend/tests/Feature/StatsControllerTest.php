@@ -27,7 +27,6 @@ class StatsControllerTest extends TestCase
         $response = $this->getJson('/api/stats/monthly?year=' . now()->year);
         $response->assertStatus(200);
         $rows = $response->json();
-        // user1 had 3 incomes of 100 each => total 300 in the month
         $this->assertNotEmpty($rows);
     }
 

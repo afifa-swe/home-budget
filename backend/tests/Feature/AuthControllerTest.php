@@ -20,10 +20,7 @@ class AuthControllerTest extends TestCase
             'password_confirmation' => 'password',
         ]);
 
-        // Controller issues an OAuth token which depends on oauth client being configured.
-        // Instead assert that user was created in database and response is a JSON (not an error).
         $this->assertDatabaseHas('users', ['email' => 'test@example.com']);
-    // issueToken may return 200/201 when passport is configured or 500/401 when not properly configured.
     $this->assertTrue(in_array($response->getStatusCode(), [200, 201, 500, 401]));
     }
 
@@ -48,8 +45,6 @@ class AuthControllerTest extends TestCase
             'password' => bcrypt('password'),
         ]);
 
-        // OAuth token issuance may not be available in tests; instead ensure login validations
-        // and then use Passport::actingAs for protected endpoints.
         $response = $this->postJson('/api/login', [
             'email' => 'test@example.com',
             'password' => 'password',
@@ -74,7 +69,6 @@ class AuthControllerTest extends TestCase
             'password' => 'wrongpassword',
         ]);
 
-        // depending on oauth config this may return 401 or 500; when validation fails it returns 422
         $this->assertTrue(in_array($response->getStatusCode(), [401, 422, 500]));
         if ($response->getStatusCode() === 422) {
             $response->assertJsonStructure(['errors']);

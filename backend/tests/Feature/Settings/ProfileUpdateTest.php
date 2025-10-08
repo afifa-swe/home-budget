@@ -26,7 +26,6 @@ class ProfileUpdateTest extends TestCase
         $user = User::factory()->create();
 
         $this->actingAs($user);
-        // initialize session/CSRF
         $this->get(route('profile.edit'));
 
         $response = $this
@@ -52,7 +51,6 @@ class ProfileUpdateTest extends TestCase
         $user = User::factory()->create();
 
         $this->actingAs($user);
-        // initialize session/CSRF
         $this->get(route('profile.edit'));
 
         $response = $this
@@ -74,7 +72,6 @@ class ProfileUpdateTest extends TestCase
         $user = User::factory()->create();
 
         $this->actingAs($user);
-        // initialize session/CSRF
         $this->get(route('profile.edit'));
 
         $response = $this
@@ -96,7 +93,6 @@ class ProfileUpdateTest extends TestCase
         $user = User::factory()->create();
 
         $this->actingAs($user);
-        // initialize session/CSRF
         $this->get(route('profile.edit'));
 
         $response = $this
